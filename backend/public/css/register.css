@@ -1,0 +1,28 @@
+/* backend/public/css/register.css */
+@import url('base.css'); /* Import common styles */
+
+/* Specific overrides or additions for register page */
+.container {
+    max-width: 450px;
+    padding: 40px;
+}
+
+h2 {
+    margin-bottom: 30px;
+}
+
+.message {
+    display: block; /* Ensure messages are visible by default if rendered by EJS */
+}
+
+form button {
+    background-color: #28a745; /* Green button for register */
+}
+
+form button:hover {
+    background-color: #218838;
+}
+
+p {
+    margin-top: 25px;
+}

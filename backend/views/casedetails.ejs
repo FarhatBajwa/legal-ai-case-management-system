@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Details</title>
+    <link rel="stylesheet" href="/css/casedetails.css">
+</head>
+<body>
+    <div class="container">
+        <h2 id="caseTitle">Loading Case...</h2>
+        <div id="message" class="message"></div>
+
+        <div id="caseDetailsContent"><p>Fetching case details...</p></div>
+
+        <!-- **FIX:** The Actions buttons are restored -->
+        <div class="actions">
+            <button id="updateCaseBtn" class="update-button">Update Case Details</button>
+            <button id="deleteCaseBtn" class="delete-button">Delete Case</button>
+        </div>
+
+        <a href="/my-cases" class="back-link">Back to My Cases</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const caseId = window.location.pathname.split('/').pop();
+            const caseTitleElem = document.getElementById('caseTitle');
+            const caseDetailsContent = document.getElementById('caseDetailsContent');
+            const messageDiv = document.getElementById('message');
+            
+            // **FIX:** Get references to the restored buttons
+            const updateCaseBtn = document.getElementById('updateCaseBtn');
+            const deleteCaseBtn = document.getElementById('deleteCaseBtn');
+
+            const displayMessage = (msg, type) => {
+                messageDiv.textContent = msg;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+            };
+
+            const fetchCaseDetails = async () => {
+                try {
+                    const res = await fetch(`/api/cases/${caseId}`);
+                    const caseData = await res.json();
+
+                    if (!res.ok) {
+                        displayMessage(caseData.message || 'Failed to load case details.', 'error');
+                        return;
+                    }
+
+                    caseTitleElem.textContent = caseData.caseTitle;
+
+                    const creationDate = new Date(caseData.createdAt).toLocaleDateString();
+                    const lastUpdated = new Date(caseData.updatedAt).toLocaleDateString();
+                    // Format deadline for the date input field
+                    const deadlineValue = caseData.deadline ? new Date(caseData.deadline).toISOString().substring(0, 10) : '';
+
+                    caseDetailsContent.innerHTML = `
+                        <div class="section">
+                            <h3>Basic Information</h3>
+                            <p><strong>Description:</strong> ${caseData.description || 'N/A'}</p>
+                            <p><strong>Case Type:</strong> ${caseData.caseType || 'N/A'}</p>
+                            <p><strong>Status:</strong> ${caseData.status || 'N/A'}</p>
+                            <p><strong>Creation Date:</strong> ${creationDate}</p>
+                            <p><strong>Last Updated:</strong> ${lastUpdated}</p>
+                        </div>
+                        <div class="section">
+                            <h3>AI Analysis</h3>
+                            <p><strong>Summary:</strong> ${caseData.summary || 'N/A'}</p>
+                            <p><strong>Keywords:</strong> N/A</p>
+                            <p><strong>Predicted Outcome:</strong> ${caseData.predictedOutcome || 'N/A'}</p>
+                        </div>
+                        <div class="section">
+                            <h3>Document</h3>
+                            <p><strong>Document Name:</strong> ${caseData.documentName || 'N/A'}</p>
+                            ${caseData.documentPath ? `<a href="${caseData.documentPath}" target="_blank" class="document-link">View Document</a>` : '<p>No document uploaded.</p>'}
+                        </div>
+                        <!-- **FIX:** The full interactive workflow section is restored -->
+                        <div class="section">
+                            <h3>Workflow Details</h3>
+                            <label for="deadline"><strong>Deadline:</strong></label>
+                            <input type="date" id="deadline" value="${deadlineValue}">
+                            <br/>
+                            <label for="notes"><strong>Notes:</strong></label>
+                            <textarea id="notes" rows="5">${caseData.notes || ''}</textarea>
+                        </div>
+                    `;
+                } catch (err) {
+                    displayMessage('Network or server error. Please try again.', 'error');
+                }
+            };
+
+            // **FIX:** The update functionality is restored
+            updateCaseBtn.addEventListener('click', async () => {
+                const notes = document.getElementById('notes').value;
+                const deadline = document.getElementById('deadline').value;
+
+                try {
+                    const res = await fetch(`/api/cases/${caseId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ notes, deadline }),
+                    });
+                    const data = await res.json();
+                    displayMessage(data.message, res.ok ? 'success' : 'error');
+                    if (res.ok) {
+                        // Optionally refresh details to show the new "Last Updated" date
+                        fetchCaseDetails();
+                    }
+                } catch(err) {
+                    displayMessage('Network error while updating.', 'error');
+                }
+            });
+
+            // **FIX:** The delete functionality is restored
+            deleteCaseBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to delete this case permanently?')) {
+                    try {
+                        const res = await fetch(`/api/cases/${caseId}`, { method: 'DELETE' });
+                        const data = await res.json();
+                        if (res.ok) {
+                            displayMessage('Case deleted successfully. Redirecting...', 'success');
+                            setTimeout(() => window.location.href = '/my-cases', 1500);
+                        } else {
+                            displayMessage(data.message, 'error');
+                        }
+                    } catch (err) {
+                        displayMessage('Network error while deleting.', 'error');
+                    }
+                }
+            });
+
+            // Initial fetch of case data when the page loads
+            fetchCaseDetails();
+        });
+    </script>
+</body>
+</html>

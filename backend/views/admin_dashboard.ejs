@@ -1,0 +1,172 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/admin_dashboard.css"> </head>
+<body>
+    <div class="container">
+        <h2>Admin Dashboard</h2>
+        <div id="adminMessage" class="message"></div>
+
+        <div class="section">
+            <h3>Overall Statistics</h3>
+            <p>Total Cases: <span id="totalCases">...</span></p>
+            <p>Total Users: <span id="totalUsers">...</span></p>
+            <p>Total Lawyers: <span id="totalLawyers">...</span></p>
+            <p>Total Admins: <span id="totalAdmins">...</span></p>
+        </div>
+
+        <div class="section">
+            <h3>Case Distribution by Type</h3>
+            <canvas id="caseTypeChart"></canvas>
+        </div>
+
+        <div class="section">
+            <h3>Outcome Prediction Distribution</h3>
+            <canvas id="outcomeDistributionChart"></canvas>
+        </div>
+
+        <a href="/dashboard" class="back-link">Back to Main Dashboard</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const adminMessageDiv = document.getElementById('adminMessage');
+            const totalCasesSpan = document.getElementById('totalCases');
+            const totalUsersSpan = document.getElementById('totalUsers');
+            const totalLawyersSpan = document.getElementById('totalLawyers');
+            const totalAdminsSpan = document.getElementById('totalAdmins');
+
+            const caseTypeCtx = document.getElementById('caseTypeChart').getContext('2d');
+            const outcomeDistributionCtx = document.getElementById('outcomeDistributionChart').getContext('2d');
+
+            const displayMessage = (msg, type) => {
+                adminMessageDiv.textContent = msg;
+                adminMessageDiv.className = `message ${type}`;
+                adminMessageDiv.style.display = 'block';
+            };
+
+            try {
+                const res = await fetch('/api/admin/dashboard-data', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    displayMessage('Access Denied: You must be logged in as an administrator to view this page. Redirecting to login...', 'error');
+                    setTimeout(() => {
+                        window.location.href = '/login-form?message=Admin access required. Please log in.';
+                    }, 3000);
+                    return;
+                }
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Update overall statistics
+                    totalCasesSpan.textContent = data.totalCases;
+                    totalUsersSpan.textContent = data.totalUsers;
+                    totalLawyersSpan.textContent = data.totalLawyers;
+                    totalAdminsSpan.textContent = data.totalAdmins;
+
+                    // Prepare data for Case Type Chart
+                    const caseTypeLabels = data.caseTypeDistribution.map(item => item.caseType || 'Unclassified');
+                    const caseTypeCounts = data.caseTypeDistribution.map(item => item.count);
+
+                    new Chart(caseTypeCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: caseTypeLabels,
+                            datasets: [{
+                                label: 'Number of Cases',
+                                data: caseTypeCounts,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.6)',
+                                    'rgba(54, 162, 235, 0.6)',
+                                    'rgba(255, 206, 86, 0.6)',
+                                    'rgba(75, 192, 192, 0.6)',
+                                    'rgba(153, 102, 255, 0.6)',
+                                    'rgba(255, 159, 64, 0.6)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Case Type Distribution'
+                                }
+                            }
+                        }
+                    });
+
+                    // Prepare data for Outcome Distribution Chart
+                    const outcomeLabels = data.outcomeDistribution.map(item => item.outcome || 'Pending');
+                    const outcomeCounts = data.outcomeDistribution.map(item => item.count);
+
+                    new Chart(outcomeDistributionCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: outcomeLabels,
+                            datasets: [{
+                                label: 'Outcome Prediction',
+                                data: outcomeCounts,
+                                backgroundColor: [
+                                    'rgba(128, 200, 128, 0.6)', // Favorable (light green)
+                                    'rgba(255, 100, 100, 0.6)', // Unfavorable (light red)
+                                    'rgba(255, 200, 0, 0.6)',   // Settlement (light orange)
+                                    'rgba(150, 150, 150, 0.6)', // Dismissed/Pending (grey)
+                                    'rgba(100, 150, 255, 0.6)'
+                                ],
+                                borderColor: [
+                                    'rgba(128, 200, 128, 1)',
+                                    'rgba(255, 100, 100, 1)',
+                                    'rgba(255, 200, 0, 1)',
+                                    'rgba(150, 150, 150, 1)',
+                                    'rgba(100, 150, 255, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Outcome Prediction Distribution'
+                                }
+                            }
+                        }
+                    });
+
+                } else {
+                    displayMessage(data.msg || 'Failed to load admin dashboard data.', 'error');
+                }
+            } catch (err) {
+                console.error('Network or server error fetching admin data:', err);
+                displayMessage('Network or server error. Please try again.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+/* backend/public/css/profile.css */
+@import url('base.css'); /* Import common styles */
+
+/* Specific overrides or additions for profile page */
+.container {
+    max-width: 500px;
+    padding: 30px;
+}
+
+h2 {
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+}
+
+.profile-details p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.profile-details strong {
+    color: #0056b3;
+}
+
+form button {
+    background-color: #28a745; /* Green button for update */
+}
+
+form button:hover {
+    background-color: #218838;
+}
+
+.back-link {
+    margin-top: 25px;
+}
