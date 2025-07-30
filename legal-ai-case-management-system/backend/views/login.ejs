@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+<<<<<<< HEAD
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+=======
+    <link rel="stylesheet" href="/css/login.css"> </head>
+>>>>>>> d0a20b173f106f271d9678f27534045bd6705edc
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <% if (typeof message !== 'undefined' && message) { %>
+<<<<<<< HEAD
+            <p class="message error"><%= message %></p>
+=======
+            <p class="message <%= typeof error !== 'undefined' && error ? 'error' : 'success' %>"><%= message %></p>
+>>>>>>> d0a20b173f106f271d9678f27534045bd6705edc
+        <% } %>
+        <form action="/login" method="POST">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+<<<<<<< HEAD
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="divider">OR</div>
+        <!-- This is now the LOGIN button -->
+        <a href="/api/auth/google/login" class="google-btn">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+            <span>Login with Google</span>
+        </a>
+
+=======
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+>>>>>>> d0a20b173f106f271d9678f27534045bd6705edc
+        <p>Don't have an account? <a href="/register-form">Register here</a></p>
+    </div>
+</body>
+</html>

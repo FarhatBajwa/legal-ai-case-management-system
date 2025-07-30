@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload New Legal Case</title>
+    <link rel="stylesheet" href="/css/upload.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Upload New Legal Case</h2>
+
+        <div id="message" class="message"></div>
+
+        <form id="uploadForm" action="/api/cases/upload" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="document">Upload Document (PDF/DOCX):</label>
+                <input type="file" id="document" name="document" accept=".pdf,.doc,.docx" required>
+            </div>
+
+            <button type="submit">Upload Case</button>
+        </form>
+
+        <a href="/dashboard" class="back-link">Back to Dashboard</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadForm = document.getElementById('uploadForm');
+            const messageDiv = document.getElementById('message');
+            const fileInput = document.getElementById('document');
+            const uploadButton = uploadForm.querySelector('button[type="submit"]');
+
+            const showMessage = (msg, type) => {
+                messageDiv.textContent = msg;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+            };
+
+            const hideMessage = () => {
+                messageDiv.style.display = 'none';
+            };
+
+            uploadForm.addEventListener('submit', async (event) => {
+                event.preventDefault(); // Prevent default form submission
+
+                hideMessage(); // Clear previous messages
+                showMessage('Uploading and processing document...', 'info'); // 'info' can be a new style in your CSS for neutral messages
+                uploadButton.disabled = true; // Disable button during upload
+
+                const formData = new FormData();
+                if (fileInput.files.length > 0) {
+                    formData.append('document', fileInput.files[0]);
+                } else {
+                    showMessage('Please select a file to upload.', 'error');
+                    uploadButton.disabled = false;
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/cases/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        showMessage(data.message || 'Case uploaded and processed successfully!', 'success');
+                        // Optionally, redirect after a short delay
+                        setTimeout(() => {
+                            window.location.href = '/my-cases'; // Or /dashboard, depending on desired flow
+                        }, 2000);
+                    } else {
+                        showMessage(data.message || 'Error uploading case. Please try again.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network or server error:', error);
+                    showMessage('Network error or server unreachable. Please try again.', 'error');
+                } finally {
+                    uploadButton.disabled = false; // Re-enable button
+                }
+            });
+        });
+    </script>
+</body>
+</html>

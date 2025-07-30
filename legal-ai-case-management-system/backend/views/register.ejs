@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+<<<<<<< HEAD
+    <link rel="stylesheet" href="/css/register.css">
+</head>
+=======
+    <link rel="stylesheet" href="/css/register.css"> </head>
+>>>>>>> d0a20b173f106f271d9678f27534045bd6705edc
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        <% if (typeof message !== 'undefined' && message) { %>
+<<<<<<< HEAD
+            <p class="message error"><%= message %></p>
+=======
+            <p class="message <%= typeof error !== 'undefined' && error ? 'error' : 'success' %>"><%= message %></p>
+>>>>>>> d0a20b173f106f271d9678f27534045bd6705edc
+        <% } %>
+        <form action="/register" method="POST">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+<<<<<<< HEAD
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+=======
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+>>>>>>> d0a20b173f106f271d9678f27534045bd6705edc
+            <label for="role">Role:</label>
+            <select id="role" name="role">
+                <option value="lawyer">Lawyer</option>
+                <option value="admin">Admin</option>
+            </select>
+<<<<<<< HEAD
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="divider">OR</div>
+        <!-- This is the new SIGN UP button -->
+        <a href="/api/auth/google/signup" class="google-btn">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+            <span>Sign up with Google</span>
+        </a>
+
+=======
+
+            <button type="submit">Register</button>
+        </form>
+>>>>>>> d0a20b173f106f271d9678f27534045bd6705edc
+        <p>Already have an account? <a href="/login-form">Login here</a></p>
+    </div>
+</body>
+</html>
